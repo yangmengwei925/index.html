@@ -1,0 +1,709 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta content="width=320, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+		<script type="text/javascript" src='js/tweenjs-0.6.2.min.js'></script>
+		<script type="text/javascript" src='js/preloadjs-0.6.2.min.js'></script>
+		<script type="text/javascript" src='js/easeljs-0.8.2.min.js'></script>
+		<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+		<script type="text/javascript" src='js/weixinshare.js?v=1'></script>
+		<script type="text/javascript" src='js/zepto.min.js'></script>
+		<style type="text/css">
+			html,body{width: 100%;height: 100%;margin: 0;padding: 0;overflow-x: hidden;}
+		</style>
+	</head>
+	<body>
+		<canvas id="canvas" style="width:100%;height:100%;background: #000;"></canvas>
+		<script type="text/javascript">
+			var initQueue = new createjs.LoadQueue(true);
+			var queue = new createjs.LoadQueue(true);
+			var stage;
+			var container=new createjs.Container();
+			var loadingtext;
+			var screenScale;
+			Zepto(function(Zepto){
+				resizeCanvas();
+				init();
+				weixin({
+				    title: '华为畅享6S 享看更享玩',
+				    desc: '喔哒～我击中了3个圣诞老人！不要拦着宝宝！宝宝还能打十个！',
+				    link: 'http://v.ubox.cn/act/act_jump/huawei',
+				    imgUrl: 'http://m.yx.renren.com/2496/shengdan/images/share.jpg'
+				});	
+			});
+			function resizeCanvas() {  
+				var canvas=Zepto("#canvas");
+			    canvas.attr("width", document.body.clientWidth*2);
+			    canvas.attr("height", document.body.clientHeight*2);
+			    canvas.css("width", document.body.clientWidth);
+			    canvas.css("height", document.body.clientHeight);
+			    var context = document.getElementById("canvas").getContext("2d");
+			    context.fillRect(0, 0, canvas.width(), canvas.height()); 
+
+			    var scale=document.body.clientWidth/320;
+			    screenScale=640/document.body.clientWidth;
+
+			    Zepto("#canvas").css('-webkit-transform-origin',"top left");
+	            Zepto("#canvas").css("-webkit-transform","scale("+scale+","+scale+")");
+
+	            Zepto("#canvas").css('-moz-transform-origin',"top left");
+	            Zepto("#canvas").css("-moz-transform","scale("+scale+","+scale+")");
+			};
+			function init(){
+				stage = new createjs.Stage("canvas");
+				createjs.Ticker.setFPS(24);
+				createjs.Ticker.timingMode = createjs.Ticker.RAF;
+				createjs.Ticker.addEventListener("tick", stage);
+				createjs.Touch.enable(stage);
+				stage.addChild(container);
+
+				queue.on("complete", handleComplete, this);
+				//queue.on("progress", handleProgress, this);
+				queue.on("fileload", handleFileLoad, this);
+				queue.loadFile({id:"title_bg", src:"images/title_bg.jpg"});
+				queue.loadFile({id:"game_title_phonelogo",src:"images/game_title_phonelogo.png"});
+				queue.loadFile({id:"huawei_logo", src:"images/huawei_logo.png"});
+				queue.loadFile({id:"phone_logo", src:"images/phone_logo.png"});
+				queue.loadFile({id:"snowball", src:"images/snowball.png"});
+				queue.loadFile({id:"chimney", src:"images/chimney.png"});
+				queue.loadFile({id:"game_title_btn", src:"images/game_title_btn.png"});
+				queue.loadFile({id:"game_title_middle", src:"images/game_title_middle.png"});
+				queue.loadFile({id:"game_title_front", src:"images/game_title_front.png"});
+				queue.loadFile({id:"game_title_package", src:"images/game_title_package.png"});
+				queue.loadFile({id:"game_title_man", src:"images/game_title_man.png"});
+				queue.loadFile({id:"game_title", src:"images/game_title.png"});
+				queue.loadFile({id:"gaming_bg", src:"images/gaming_bg.jpg"});
+				queue.loadFile({id:"gaming_cannon", src:"images/gaming_cannon.png"});
+				queue.loadFile({id:"gaming_scorelabels", src:"images/gaming_scorelabels.png"});
+				queue.loadFile({id:"gaming_timebarbg", src:"images/gaming_timebarbg.png"});
+				queue.loadFile({id:"gaming_timebar", src:"images/gaming_timebar.png"});
+				queue.loadFile({id:"gaming_cd_3", src:"images/gaming_cd_3.png"});
+				queue.loadFile({id:"gaming_cd_2", src:"images/gaming_cd_2.png"});
+				queue.loadFile({id:"gaming_cd_1", src:"images/gaming_cd_1.png"});
+				queue.loadFile({id:"gaming_cd_go", src:"images/gaming_cd_go.png"});
+				queue.loadFile({id:"gaming_object1", src:"images/gaming_object1.png"});
+				queue.loadFile({id:"gaming_object2", src:"images/gaming_object2.png"});
+				queue.loadFile({id:"gaming_object3", src:"images/gaming_object3.png"});
+				queue.loadFile({id:"gaming_object4", src:"images/gaming_object4.png"});
+				queue.loadFile({id:"gaming_object5", src:"images/gaming_object5.png"});
+				queue.loadFile({id:"gaming_text1", src:"images/gaming_text1.png"});
+				queue.loadFile({id:"gaming_text2", src:"images/gaming_text2.png"});
+				queue.loadFile({id:"gaming_text3", src:"images/gaming_text3.png"});
+				queue.loadFile({id:"gaming_text4", src:"images/gaming_text4.png"});
+				queue.loadFile({id:"gaming_text5", src:"images/gaming_text5.png"});
+				queue.loadFile({id:"gaming_help", src:"images/gaming_help.png"});
+				queue.loadFile({id:"gameover_bg_fail", src:"images/gameover_bg_fail.jpg"});
+				queue.loadFile({id:"gameover_bg_success", src:"images/gameover_bg_success.jpg"});
+				queue.loadFile({id:"gameover_btn_back", src:"images/gameover_btn_back.png"});
+				queue.loadFile({id:"gameover_btn_awards", src:"images/gameover_btn_awards.png"});
+				queue.loadFile({id:"gameover_btn_again", src:"images/gameover_btn_again.png"});
+				queue.loadFile({id:"gaming_clicktips1", src:"images/gaming_clicktips1.png"});
+				queue.loadFile({id:"gaming_clicktips2", src:"images/gaming_clicktips2.png"});
+				queue.loadFile({id:"gaming_clicktips3", src:"images/gaming_clicktips3.png"});
+				queue.loadFile({id:"gaming_clicktips4", src:"images/gaming_clicktips4.png"});
+				queue.loadFile({id:"gaming_clicktips5", src:"images/gaming_clicktips5.png"});
+				queue.loadFile({id:"gaming_cannon_bullets", src:"images/gaming_cannon_bullets.png"});
+				queue.loadFile({id:"gaming_cannon_body", src:"images/gaming_cannon_body.png"});
+				queue.loadFile({id:"gaming_cannon_wheels", src:"images/gaming_cannon_wheels.png"});
+				queue.loadFile({id:"gaming_effect1", src:"images/gaming_effect1.png"});
+				queue.loadFile({id:"gaming_effecttext1", src:"images/gaming_effecttext1.png"});
+			}
+			function handleFileLoad(e){
+				var item = e.item;
+				if(item.id=="chimney"){
+					setupLoadingScene();
+				}
+			}
+			function handleComplete(e) {
+				//setupLoadingScene();
+			}
+			function clearAllContainer(){
+				for (var i = container.children.length - 1; i >= 0; i--) {
+					container.removeChildAt(0);
+				}
+			}
+			function wave(){
+				return Math.random()>.5?1:-1;
+			}
+			function bounceAnimation(target,callback){
+				if(!target["isAnimated"]){
+					target["isAnimated"]=true;
+					createjs.Tween.get(target).to({scaleX:1.2,scaleY:.9}, 200).to({scaleX:.9,scaleY:1.2}, 200).to({scaleX:1,scaleY:1}, 100).wait(500).call(function(){
+						target["isAnimated"]=false;
+						if(callback)callback();
+					});
+				}
+			}
+			function setupLoadingScene(){
+				clearAllContainer();
+				var title_bg=new createjs.Bitmap(queue.getResult("title_bg"));
+				title_bg.scaleY=document.body.clientHeight*screenScale/title_bg.image.height;
+				container.addChildAt(title_bg,0);
+
+				var huawei_logo = new createjs.Bitmap(queue.getResult("huawei_logo"));
+				huawei_logo.x=640-66-30;
+				huawei_logo.y=30;
+				stage.addChild(huawei_logo);
+
+				var phone_logo = new createjs.Bitmap(queue.getResult("game_title_phonelogo"));
+				phone_logo.x=28;
+				phone_logo.y=document.body.clientHeight*screenScale-phone_logo.image.height-20;
+				container.addChild(phone_logo);
+
+				var chimney = new createjs.Bitmap(queue.getResult("chimney"));
+				chimney.x=640/2;
+				chimney.y=928/2;
+				chimney.regX=163/2;
+				chimney.regY=126;
+				container.addChild(chimney);
+
+				loadingtext = new createjs.Text("0%", "24px Arial", "#ffffff");
+ 				loadingtext.width = 163;
+ 				loadingtext.height= 24;
+ 				loadingtext.textAlign="center";
+ 				loadingtext.x=640/2;
+ 				loadingtext.y=chimney.y+10;
+ 				container.addChild(loadingtext);
+
+ 			// 	function simulateLoading(callback){
+				// 	if(!window["percentage"])window["percentage"]=0;
+				// 	window["percentage"]+=1;
+				// 	loadingtext.text=window["percentage"]+"%";
+				// 	bounceAnimation(chimney);
+				// 	if(window["percentage"]>=100){
+				// 		window["percentage"]=100;
+				// 		loadingtext.text=window["percentage"]+"%";
+				// 		if(window["loadingtimer"])clearInterval(window["loadingtimer"]);
+				// 		enterTitleScene();
+				// 		return;
+				// 	}
+				// }
+				// if(!window["loadingtimer"])window["loadingtimer"]=setInterval(simulateLoading,10);
+
+				queue.on("progress", function(e) {
+					window["percentage"]=Math.floor(e.loaded/e.total*100);
+					loadingtext.text=window["percentage"]+"%";
+					bounceAnimation(chimney);
+					if(window["percentage"]>=100){
+						window["percentage"]=100;
+						loadingtext.text=window["percentage"]+"%";
+						if(window["loadingtimer"])clearInterval(window["loadingtimer"]);
+						enterTitleScene();
+						return;
+					}
+				}, this);
+
+				var game_title_btn;
+				function enterTitleScene(){
+					container.removeChild(loadingtext);
+
+					game_title_btn = new createjs.Bitmap(queue.getResult("game_title_btn"));
+					game_title_btn.x=320;
+					game_title_btn.y=512;
+					game_title_btn.scaleX=.5;
+					game_title_btn.scaleY=.5;
+					container.addChild(game_title_btn);
+
+					createjs.Tween.get(game_title_btn).to({scaleX:1,scaleY:1,x:292,y:document.body.clientHeight*screenScale-game_title_btn.image.height-20}, 300);
+
+					createjs.Tween.get(chimney).to({x:292+157,y:document.body.clientHeight*screenScale-game_title_btn.image.height/2-20}, 200).wait(500).call(showGameTitle);
+				}
+				function showGameTitle(){
+					bounceAnimation(chimney);
+					var game_title = new createjs.Bitmap(queue.getResult("game_title"));
+					game_title.x=292+157;
+					game_title.y=880;
+					game_title.scaleX=.2;
+					game_title.scaleY=.2;
+					game_title.alpha=0;
+					container.addChild(game_title);
+
+					createjs.Tween.get(game_title).wait(100).to({x:19,y:67,scaleX:1,scaleY:1,alpha:1}, 300).call(showFrontMiddleMen);
+				}
+				function showFrontMiddleMen(){
+					var game_title_man = new createjs.Bitmap(queue.getResult("game_title_man"));
+					game_title_man.x=292+157;
+					game_title_man.y=880;
+					game_title_man.scaleX=.2;
+					game_title_man.scaleY=.2;
+					game_title_man.alpha=0;
+					container.addChildAt(game_title_man,3);
+
+					createjs.Tween.get(game_title_man).wait(100).to({x:214,y:330,scaleX:1,scaleY:1,alpha:1}, 300);
+
+					var game_title_middle = new createjs.Bitmap(queue.getResult("game_title_middle"));
+					game_title_middle.x=292+157;
+					game_title_middle.y=880;
+					game_title_middle.scaleX=.2;
+					game_title_middle.scaleY=.2;
+					game_title_middle.alpha=0;
+					container.addChild(game_title_middle);
+
+					createjs.Tween.get(game_title_middle).wait(100).to({x:156,y:497,scaleX:1,scaleY:1,alpha:1}, 300);
+
+					var game_title_front = new createjs.Bitmap(queue.getResult("game_title_front"));
+					game_title_front.x=292+157;
+					game_title_front.y=880;
+					game_title_front.scaleX=.2;
+					game_title_front.scaleY=.2;
+					game_title_front.alpha=0;
+					container.addChild(game_title_front);
+
+					createjs.Tween.get(game_title_front).wait(100).to({x:-208,y:392,scaleX:1,scaleY:1,alpha:1}, 300);
+
+					game_title_btn.addEventListener("click",function(){
+						setupGameScene();
+					});
+				}
+			}
+			function setupGameScene(){
+				clearAllContainer();
+
+				var title_bg=new createjs.Bitmap(queue.getResult("gaming_bg"));
+				title_bg.scaleY=document.body.clientHeight*screenScale/title_bg.image.height;
+				container.addChildAt(title_bg,0);
+
+				var phone_logo = new createjs.Bitmap(queue.getResult("phone_logo"));
+				phone_logo.x=28;
+				phone_logo.y=document.body.clientHeight*screenScale-phone_logo.image.height-20;
+				container.addChild(phone_logo);
+
+				var gaming_scorelabels=new createjs.Bitmap(queue.getResult("gaming_scorelabels"));
+				gaming_scorelabels.x=39;
+				gaming_scorelabels.y=102;
+				container.addChild(gaming_scorelabels);
+
+				var score_txt=new createjs.Text("0", "24px Arial-Black", "#ffffff");
+				score_txt.x=82;
+				score_txt.y=140;
+				score_txt.text="0";
+				container.addChild(score_txt);
+
+				var time_txt=new createjs.Text("0", "24px Arial", "#ffffff");
+				time_txt.x=540;
+				time_txt.y=140;
+				time_txt.text="00:00";
+				container.addChild(time_txt);
+
+				var gaming_timebarbg=new createjs.Bitmap(queue.getResult("gaming_timebarbg"));
+				gaming_timebarbg.x=208;
+				gaming_timebarbg.y=136;
+				container.addChild(gaming_timebarbg);
+
+				var gaming_timebar=new createjs.Bitmap(queue.getResult("gaming_timebar"));
+				gaming_timebar.x=211;
+				gaming_timebar.y=139;
+				container.addChild(gaming_timebar);
+
+				var runFast=false;
+				var effect=false;
+				function chimenyClick(chimney_item){
+					//var chimney_item=e.currentTarget;
+					if(snowballCount<=0)return;
+					if(!chimney_item.object)return;
+					if(chimney_item.object.isClicked)return;
+					chimney_item.object.isClicked=true;
+
+					createjs.Tween.get(chimney_item).wait(500).call(function(){
+						showSnowBallExp(chimney_item.x,chimney_item.y-126);
+					});
+
+					if(chimney_item.objectIndex==2 && !runFast){
+						objCount=6;
+						objRandomCount=0;
+						runFast=true;
+						createjs.Tween.get(this).wait(3000).call(function(){
+							objCount=1;
+							objRandomCount=4;
+							runFast=false;
+						});
+						console.log("激活运行超快效果");
+					}else if(chimney_item.objectIndex==4){
+						console.log("激活抓拍抢镜王效果");
+						for (var i = 0; i < chimney_arr.length; i++) {
+							var ctem=chimney_arr[i];
+							if(ctem.objectIndex!=chimney_item.objectIndex){
+								if(ctem.objectIndex!=5){
+									chimenyClick(ctem);
+								}
+							}
+						}
+
+						if(!effect){
+							effect=true;
+							curtime+=2;
+
+							var graphics = new createjs.Graphics().beginFill("rgba(0,0,0,.6)").drawRect(0, 0, document.body.clientWidth*screenScale, document.body.clientHeight*screenScale);
+		 					var shape = new createjs.Shape(graphics);
+
+		 					container.addChild(shape);
+
+							var gaming_effect1=new createjs.Bitmap(queue.getResult("gaming_effect1"));
+							gaming_effect1.regX=gaming_effect1.image.width/2;
+							gaming_effect1.regY=gaming_effect1.image.height/2;
+							gaming_effect1.x=document.body.clientWidth*screenScale/2;
+							gaming_effect1.y=document.body.clientHeight*screenScale/2;
+							gaming_effect1.scaleX=gaming_effect1.scaleY=.5;
+							gaming_effect1.alpha=0;
+							createjs.Tween.get(gaming_effect1).to({scaleX:1,scaleY:1,alpha:1},300,createjs.Ease.getBackOut(2.2)).wait(1400).to({scaleX:.5,scaleY:.5,alpha:0},300,createjs.Ease.getPowIn(2.2)).call(function(){
+								effect=false;
+								container.removeChild(gaming_effect1);
+								container.removeChild(shape);
+							});
+							container.addChild(gaming_effect1);
+
+							var gaming_effecttext1=new createjs.Bitmap(queue.getResult("gaming_effecttext1"));
+							gaming_effecttext1.x=document.body.clientWidth*screenScale/2+50;
+							gaming_effecttext1.y=document.body.clientHeight*screenScale/2+150;
+							gaming_effecttext1.alpha=0;
+							createjs.Tween.get(gaming_effecttext1).to({x:document.body.clientWidth*screenScale/2+50,alpha:1},300,createjs.Ease.getPowOut(2.2)).wait(1400).to({x:document.body.clientWidth*screenScale/2,alpha:0},300,createjs.Ease.getPowIn(2.2)).call(function(){
+								container.removeChild(gaming_effecttext1);
+							});
+							container.addChild(gaming_effecttext1);
+						}
+					}
+
+					console.log(chimney_item.object.tipsText);
+					if(chimney_item.object.tipsText)container.removeChild(chimney_item.object.tipsText);
+
+					var text_item=new createjs.Bitmap(queue.getResult("gaming_text"+chimney_item.objectIndex));
+					text_item.regX=text_item.image.width/2;
+					text_item.regY=text_item.image.height;
+					text_item.x=chimney_item.x;
+					text_item.y=chimney_item.y-126-50;
+					text_item.alpha=0;
+
+					createjs.Tween.get(text_item).to({y:text_item.y-40,alpha:1},500).wait(800).call(function(){
+						container.removeChild(this);
+					});
+
+					container.addChild(text_item);
+
+					if(chimney_item.objectIndex==3){
+						score_txt.text=parseInt(score_txt.text)+5;
+					}else if(chimney_item.objectIndex==5){
+						gameOver("fail");
+					}else{
+						score_txt.text=parseInt(score_txt.text)+1;
+					}
+				}
+
+				var chimney_arr=[];
+				for (var i = 0; i < 6; i++) {
+					var chimney_item=new createjs.Bitmap(queue.getResult("chimney"));
+					chimney_item.x=Math.floor(i%3)*(163+37)+40+163/2;
+					chimney_item.y=Math.floor(i/3)*(126+143)+306+126;
+					chimney_item.regX=163/2;
+					chimney_item.regY=126;
+					container.addChild(chimney_item);
+
+					chimney_item.addEventListener("click",function(e){
+						chimenyClick(e.currentTarget);
+					});
+					chimney_arr.push(chimney_item);
+				}
+
+				function showSnowBallExp(x,y){
+					for(var i=0;i<10;i++){
+						var snowball=new createjs.Bitmap(queue.getResult("snowball"));
+						snowball.x=x;
+						snowball.y=y;
+						snowball.regX=snowball.image.width/2;
+						snowball.regY=snowball.image.height/2;
+						snowball.alpha=0;
+						snowball.scaleX=snowball.scaleY=.5;
+						container.addChild(snowball);
+						createjs.Tween.get(snowball).to({x:x+(Math.random()*100+100)*wave(),y:y+(Math.random()*100+100)*wave(),scaleX:0,scaleY:0,alpha:1},500).wait(Math.random()*500).call(function(){
+							container.removeChild(this);
+						});
+					}
+				}
+				var snowballCount=3;
+				function snowballFireHandler(e){
+					if(e.stageY>175 && e.stageY<776 && snowballCount>0){
+						var snowball=new createjs.Bitmap(queue.getResult("snowball"));
+						snowball.x=gaming_cannon.x;
+						snowball.y=gaming_cannon.y-188;
+						snowball.alpha=0;
+						snowball.scaleX=snowball.scaleY=.5;
+						container.addChild(snowball);
+						var length = Math.sqrt(Math.pow(snowball.x - e.stageX,2)+Math.pow(snowball.y - e.stageY,2)); 
+						createjs.Tween.get(snowball).to({x:e.stageX,y:e.stageY,alpha:1},length).call(function(){
+							container.removeChild(this);
+						});
+						snowballCount--;
+						gaming_cannon.bullets.scaleY=snowballCount*44/132;
+						if(snowballCount<=0){
+							bounceAnimation(gaming_cannon,function(){
+								snowballCount=3;
+								gaming_cannon.bullets.scaleY=snowballCount*44/132;
+							});
+						}
+					}
+				}
+
+				var gaming_cannon=new createjs.Container();
+				gaming_cannon.x=274+80;
+				gaming_cannon.y=816+188-20;
+				gaming_cannon.regX=80;
+				gaming_cannon.regY=188;
+				container.addChild(gaming_cannon);
+
+				var cannon_body=new createjs.Bitmap(queue.getResult("gaming_cannon_body"));
+				var cannon_bullets=new createjs.Bitmap(queue.getResult("gaming_cannon_bullets"));
+				cannon_bullets.regY=cannon_bullets.image.height/2;
+				cannon_bullets.y=cannon_bullets.image.height/2;
+
+				gaming_cannon.bullets=cannon_bullets;
+
+				var cannon_bodyCon=new createjs.Container();
+				cannon_bodyCon.regX=cannon_body.image.width/2;
+				cannon_bodyCon.regY=cannon_body.image.height-5;
+				cannon_bodyCon.x=75;
+				cannon_bodyCon.y=120;
+				gaming_cannon.addChild(cannon_bodyCon);
+
+				cannon_bodyCon.addChild(cannon_body);
+				cannon_bodyCon.addChild(cannon_bullets);
+
+				//cannon_bodyCon.rotation=-45;
+				function cannonRotationRight(){
+					createjs.Tween.get(cannon_bodyCon).to({rotation:45},3000).call(function(){
+						cannonRotationLeft();
+					});
+				}
+				function cannonRotationLeft(){
+					createjs.Tween.get(cannon_bodyCon).to({rotation:-45},3000).call(function(){
+						cannonRotationRight();
+					});
+				}
+				//cannonRotationRight();
+				
+
+				var cannon_wheels=new createjs.Bitmap(queue.getResult("gaming_cannon_wheels"));
+				cannon_wheels.x=0;
+				cannon_wheels.y=0;
+				gaming_cannon.addChild(cannon_wheels);
+				
+
+				function startCountDown(){
+					var countDownContainer=new createjs.Container();
+					stage.addChild(countDownContainer);
+
+					var graphics = new createjs.Graphics().beginFill("rgba(0,0,0,.6)").drawRect(0, 0, document.body.clientWidth*screenScale, document.body.clientHeight*screenScale);
+ 					var shape = new createjs.Shape(graphics);
+
+ 					countDownContainer.addChild(shape);
+
+ 					var count_num=new createjs.Bitmap(queue.getResult("gaming_cd_3"));
+ 					count_num.regX=270/2;
+ 					count_num.regY=160/2;
+ 					count_num.x=640/2;
+ 					count_num.y=1024/2;
+ 					countDownContainer.addChild(count_num);
+
+ 					var countSec=3;
+ 					var timer=setInterval(function(){
+ 						countSec--;
+ 						if(countSec==0){
+ 							count_num.image=queue.getResult("gaming_cd_go");
+ 							clearInterval(timer);
+ 							setTimeout(function(){
+ 								stage.removeChild(countDownContainer);
+ 								startGame();
+ 							},1000);
+ 						}else{
+ 							count_num.image=queue.getResult("gaming_cd_"+countSec);
+ 						}
+ 						
+ 					},1000);
+				}
+
+				var gaming_help=new createjs.Bitmap(queue.getResult("gaming_help"));
+				stage.addChild(gaming_help);
+
+				gaming_help.addEventListener("click",function(){
+					stage.removeChild(gaming_help);
+					startCountDown();
+				});
+
+				var timer;
+				var isGameOver;
+				function gameOver(status,score){
+					isGameOver=true;
+					container.removeEventListener("click",snowballFireHandler);
+					clearInterval(timer);
+					setupGameOverScene(status,score);
+				}
+				var objCount=1;
+				var objRandomCount=4;
+				var curtime=20;
+				function startGame(){
+					container.addEventListener("click",snowballFireHandler);
+					isGameOver=false;
+					
+					function gamingTimerStart(){
+						var curtime_str=curtime;
+						if(curtime<10)curtime_str="0"+curtime;
+						time_txt.text="00:"+curtime_str;
+						gaming_timebar.scaleX=(curtime/20);
+						popoutObject();
+						curtime--;
+						if(curtime<0){
+							console.log("游戏结束，得分："+score_txt.text);
+							gameOver("success",score_txt.text+"");
+						}
+					}
+					gamingTimerStart();
+					timer=setInterval(gamingTimerStart,1000);
+					
+					var hasZPQJW=false;
+					function popoutObject(){
+						for (var i = 0; i < objCount+Math.floor(Math.random()*objRandomCount); i++) {
+							popupTargetObject();
+						}
+					}
+					function popupTargetObject(){
+						var chimneyIndex=Math.floor(Math.random()*chimney_arr.length);
+							var chimney_item=chimney_arr[chimneyIndex];
+							
+							if(!chimney_item.isPopout){
+								chimney_item.isPopout=true;
+								createjs.Tween.get(chimney_item).wait(Math.random()*1000).call(function(){
+									
+									var objectIndex=Math.floor(Math.random()*5)+1;
+
+									if(objectIndex==4 && hasZPQJW){
+										chimney_item.isPopout=false;
+										popupTargetObject();
+										return;
+									}
+
+									if(objectIndex==4){
+										hasZPQJW=true;
+									}
+
+									bounceAnimation(this);
+
+									var chimneyTarget=this;
+
+									chimneyTarget.objectIndex=objectIndex;
+									var object=new createjs.Bitmap(queue.getResult("gaming_object"+objectIndex));
+									object.x=this.x;
+									object.y=this.y;
+									object.regX=object.image.width/2;
+									object.regY=object.image.height;
+									object.alpha=0;
+
+									chimneyTarget.object=object;
+
+									var index = container.getChildIndex(this);
+									container.addChildAt(object,index);
+
+									object.chimneyTarget=chimneyTarget;
+									object.addEventListener("click",function(e){
+										chimenyClick(e.currentTarget.chimneyTarget);
+									});
+
+									createjs.Tween.get(object).wait(500).to({y:chimneyTarget.y-100,alpha:1}, 500).call(function(){
+										var text_item;
+
+										if(!isGameOver){
+
+											text_item=new createjs.Bitmap(queue.getResult("gaming_clicktips"+objectIndex));
+
+											this.tipsText=text_item;
+
+											text_item.regX=text_item.image.width/2;
+											text_item.regY=text_item.image.height;
+											text_item.x=chimneyTarget.x;
+											text_item.y=chimneyTarget.y-126-100;
+											//text_item.alpha=0;
+											container.addChild(text_item);
+
+											//createjs.Tween.get(text_item,{loop:true}).to({alpha:1},200);
+											createjs.Tween.get(text_item).wait(1000).call(function(){
+												container.removeChild(this);
+											});
+										}
+									}).wait(1000).call(function(){
+										delete chimneyTarget.objectIndex;
+										delete chimneyTarget.object;
+										if(chimneyTarget.objectIndex==4){
+											hasZPQJW=false;
+										}
+										createjs.Tween.get(this).to({y:chimneyTarget.y}, 300).call(function(){
+											container.removeChild(this);
+											chimneyTarget.isPopout=false;
+										});
+									});
+								});
+							}
+					}
+				}
+			}
+			function setupGameOverScene(status,score){
+				clearAllContainer();
+				if(status=="success"){
+					Zepto.ajax({
+						url:"http://m.yx.renren.com/2496/score2",
+						type:"POST",
+						data:{
+							score:score
+						}
+					});
+					console.log(score);
+					var score_txt=new createjs.Text(score, "44px Arial-Black", "#ffffff");
+					score_txt.x=362;
+					score_txt.y=310;
+					score_txt.textAlign="center";
+					//score_txt.text=score;
+					container.addChild(score_txt); 
+
+					updateWeiXin({
+					    title: '华为畅享6S 享看更享玩',
+					    desc: '喔哒～我击中了'+score+'个圣诞老人！不要拦着宝宝！宝宝还能打十个！',
+					    link: 'http://v.ubox.cn/act/act_jump/huawei',
+					    imgUrl: 'http://m.yx.renren.com/2496/shengdan/images/share.jpg'
+					});
+				}
+
+				var title_bg=new createjs.Bitmap(queue.getResult("gameover_bg_"+status));
+				container.addChildAt(title_bg,0);
+
+				var phone_logo = new createjs.Bitmap(queue.getResult("phone_logo"));
+				phone_logo.x=28;
+				phone_logo.y=document.body.clientHeight*screenScale-phone_logo.image.height-40;
+				container.addChild(phone_logo);
+
+				var gameover_btn_again=new createjs.Bitmap(queue.getResult("gameover_btn_again"));
+				gameover_btn_again.x=320;
+				gameover_btn_again.y=438;
+				container.addChild(gameover_btn_again);
+
+				gameover_btn_again.addEventListener("click",function(){
+					window.location.href=window.location.href+"?rnd="+(new Date().getTime());
+				});
+
+				var gameover_btn_awards=new createjs.Bitmap(queue.getResult("gameover_btn_awards"));
+				gameover_btn_awards.x=320;
+				gameover_btn_awards.y=579;
+				container.addChild(gameover_btn_awards);
+
+				gameover_btn_awards.addEventListener("click",function(){
+					window.location.href="http://m.yx.renren.com/2497/m/lottery.html";
+				});
+
+				var gameover_btn_back=new createjs.Bitmap(queue.getResult("gameover_btn_back"));
+				gameover_btn_back.x=320;
+				gameover_btn_back.y=719;
+				container.addChild(gameover_btn_back);
+
+				gameover_btn_back.addEventListener("click",function(){
+					window.location.href="http://v.ubox.cn/act/act_jump/huawei";
+				});
+			}
+		</script>
+	</body>
+</html>
